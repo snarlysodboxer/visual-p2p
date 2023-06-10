@@ -17,6 +17,23 @@ function createWindow(): void {
     },
   })
 
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.name,
+      submenu: [
+        {
+          click: () => mainWindow.webContents.send('update-counter', 1),
+          label: 'Increment',
+        },
+        {
+          click: () => mainWindow.webContents.send('update-counter', -1),
+          label: 'Decrement',
+        },
+      ],
+    },
+  ])
+  Menu.setApplicationMenu(menu)
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -62,9 +79,11 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  // Temporarily quit the app on all platforms for development.
+  app.quit()
+  // if (process.platform !== 'darwin') {
+  //   app.quit()
+  // }
 })
 
 // In this file you can include the rest of your app"s specific main process
