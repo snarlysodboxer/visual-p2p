@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { appChannelPort, secondaryChannelPort, rendererPorts } from './messageChannels'
 
 function createWindow(): void {
   // Create the browser window.
@@ -17,17 +18,24 @@ function createWindow(): void {
     },
   })
 
+  // Pass the collection of ports through the preload script to the renderer.
+  mainWindow.webContents.postMessage('message-channel-ports', 'appChannelPort', rendererPorts)
+
   const menu = Menu.buildFromTemplate([
     {
       label: app.name,
       submenu: [
         {
-          click: () => mainWindow.webContents.send('update-counter', 1),
+          click: () => appChannelPort.postMessage(1),
           label: 'Increment',
         },
         {
-          click: () => mainWindow.webContents.send('update-counter', -1),
+          click: () => appChannelPort.postMessage(-1),
           label: 'Decrement',
+        },
+        {
+          click: () => secondaryChannelPort.postMessage(42),
+          label: '42',
         },
       ],
     },
