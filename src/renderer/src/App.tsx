@@ -1,26 +1,56 @@
 import { useState, useEffect } from 'react'
+import { useMessageChannels } from './hooks/useMessageChannels'
+import { Button, Input, Sheet } from '@mui/joy'
 
 export function App(): JSX.Element {
-  const [count, setCount] = useState(0)
+  const [appData, setAppData] = useState<Record<string, string>>({})
+  const [inputText, setInputText] = useState('')
+  const { appChannelPort, connectionChannelPort, dataChannelPort } = useMessageChannels()
+  const [messages, setMessages] = useState<string[]>([])
 
   useEffect(() => {
-    window.onmessage = (event) => {
-      // event.source === window means the message is coming from the preload
-      // script, as opposed to from an <iframe> or other source.
-      if (event.source === window && event.data === 'message-channel-ports') {
-        const [appChannelPort, secondaryChannelPort] = event.ports
+    if (!connectionChannelPort) return
 
-        appChannelPort.onmessage = (event) => {
-          setCount((count) => count + event.data)
-        }
-        secondaryChannelPort.onmessage = (event) => {
-          setCount(event.data)
-        }
-      }
+    connectionChannelPort.onmessage = (event: MessageEvent) => {
+      setMessages((messages) => [...messages, event.data])
+      console.log(event.data)
     }
-  }, [])
+  }, [connectionChannelPort])
 
-  return <div className="container">{count}</div>
+  useEffect(() => {
+    if (!dataChannelPort) return
+
+    dataChannelPort.onmessage = (event: MessageEvent) => {
+      setAppData(event.data)
+    }
+  }, [dataChannelPort])
+
+  const handleButtonClick = () => {
+    if (!appChannelPort) return
+    appChannelPort.postMessage(inputText)
+    setInputText('')
+  }
+
+  return (
+    <Sheet variant="outlined" color="neutral" sx={{ p: 4, m: 4 }}>
+      <h1>{appData.name}</h1>
+      <Input
+        value={inputText}
+        onChange={(event) => {
+          setInputText(event.target.value)
+        }}
+        placeholder="Type in here…"
+      />
+      <Button loading={!appChannelPort} onClick={handleButtonClick}>
+        Send
+      </Button>
+      <ul>
+        {messages.map((message, index) => (
+          <li key={index}>{message}</li>
+        ))}
+      </ul>
+    </Sheet>
+  )
 }
 
 export default App

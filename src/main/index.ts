@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, Menu } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { appChannelPort, secondaryChannelPort, rendererPorts } from './messageChannels'
+import { rendererPorts } from './messageChannels'
+import { connect } from './connect'
 
 function createWindow(): void {
   // Create the browser window.
@@ -19,28 +20,7 @@ function createWindow(): void {
   })
 
   // Pass the collection of ports through the preload script to the renderer.
-  mainWindow.webContents.postMessage('message-channel-ports', 'appChannelPort', rendererPorts)
-
-  const menu = Menu.buildFromTemplate([
-    {
-      label: app.name,
-      submenu: [
-        {
-          click: () => appChannelPort.postMessage(1),
-          label: 'Increment',
-        },
-        {
-          click: () => appChannelPort.postMessage(-1),
-          label: 'Decrement',
-        },
-        {
-          click: () => secondaryChannelPort.postMessage(42),
-          label: '42',
-        },
-      ],
-    },
-  ])
-  Menu.setApplicationMenu(menu)
+  mainWindow.webContents.postMessage('message-channel-ports', null, rendererPorts)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -96,3 +76,5 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+connect()
