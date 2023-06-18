@@ -28,6 +28,7 @@
     "@mui/joy": "^5.0.0-alpha.83",
     "b4a": "^1.6.4",
     "corestore": "^6.8.2",
+    "electron-window-state": "^5.0.3",
     "graceful-goodbye": "^1.2.1",
     "hyperbee": "^2.13.0",
     "hypercore": "^10.15.1",

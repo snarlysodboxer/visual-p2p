@@ -1,15 +1,25 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import windowStateKeeper from 'electron-window-state'
 import icon from '../../resources/icon.png?asset'
 import { rendererPorts } from './messageChannels'
-import { connect } from './connect'
+import { connect, name } from './connect'
 
 function createWindow(): void {
+  // Load the previous state with fallback to defaults
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: 900,
+    defaultHeight: 670,
+    file: `window-state-${name}.json`,
+  })
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -18,6 +28,11 @@ function createWindow(): void {
       sandbox: false,
     },
   })
+
+  // Lets us register listeners on the window, so we can update the state
+  // automatically (the listeners will be removed when the window is closed)
+  // and restore the maximized or full screen state
+  mainWindowState.manage(mainWindow)
 
   // Pass the collection of ports through the preload script to the renderer.
   mainWindow.webContents.postMessage('message-channel-ports', null, rendererPorts)

@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 import { appChannelPort, connectionChannelPort, dataChannelPort } from './messageChannels'
 import RemotePeer from './RemotePeer'
 
-const name = process.env.MAIN_VITE_NAME || 'test'
+export const name = process.env.MAIN_VITE_NAME || 'test'
 const topic = process.env.MAIN_VITE_TOPIC || 'test-topic'
 const topicHex = createHash('sha256').update(topic).digest('hex')
 const topicBuffer = b4a.from(topicHex, 'hex')
