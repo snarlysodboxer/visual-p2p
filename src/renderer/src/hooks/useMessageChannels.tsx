@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import * as React from 'react'
 
 interface MessageChannelPorts {
   appChannelPort?: MessagePort
@@ -6,10 +6,16 @@ interface MessageChannelPorts {
   dataChannelPort?: MessagePort
 }
 
-export const useMessageChannels = () => {
-  const [ports, setPorts] = useState<MessageChannelPorts>({})
+interface MessageChannelProviderProps {
+  children: React.ReactNode
+}
 
-  useEffect(() => {
+const messageChannelContext = React.createContext<MessageChannelPorts>({})
+
+export const MessageChannelProvider = ({ children }: MessageChannelProviderProps) => {
+  const [ports, setPorts] = React.useState<MessageChannelPorts>({})
+
+  React.useEffect(() => {
     window.onmessage = (event: MessageEvent) => {
       if (event.source === window && event.data === 'message-channel-ports') {
         const [appChannelPort, connectionChannelPort, dataChannelPort] = event.ports
@@ -19,5 +25,9 @@ export const useMessageChannels = () => {
     }
   }, [])
 
-  return ports
+  return <messageChannelContext.Provider value={ports}>{children}</messageChannelContext.Provider>
+}
+
+export const useMessageChannels = () => {
+  return React.useContext(messageChannelContext)
 }
