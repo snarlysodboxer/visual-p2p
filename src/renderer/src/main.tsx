@@ -4,13 +4,16 @@ import { StyledEngineProvider } from '@mui/joy/styles'
 import './assets/index.css'
 import App from './App'
 import { MessageChannelProvider } from './hooks/useMessageChannels'
+import { RecoilRoot } from 'recoil'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <StyledEngineProvider injectFirst>
-      <MessageChannelProvider>
-        <App />
-      </MessageChannelProvider>
-    </StyledEngineProvider>
+    <RecoilRoot>
+      <StyledEngineProvider injectFirst>
+        <MessageChannelProvider>
+          <App />
+        </MessageChannelProvider>
+      </StyledEngineProvider>
+    </RecoilRoot>
   </React.StrictMode>
 )

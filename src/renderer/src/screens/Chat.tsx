@@ -4,12 +4,14 @@ import Button from '@mui/joy/Button'
 import Sheet from '@mui/joy/Sheet'
 import Input from '@mui/joy/Input'
 import Layout from '../components/Layout'
+import { useRecoilState } from 'recoil'
+import { messagesState } from '../state'
 
 export function Chat() {
   const [appData, setAppData] = React.useState<Record<string, string>>({})
   const [inputText, setInputText] = React.useState('')
   const { appChannelPort, connectionChannelPort, dataChannelPort } = useMessageChannels()
-  const [messages, setMessages] = React.useState<string[]>([])
+  const [messages, setMessages] = useRecoilState(messagesState)
 
   React.useEffect(() => {
     if (!connectionChannelPort) return
